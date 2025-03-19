@@ -38,11 +38,7 @@ public class UserMapper {
 
         return user;
     }
-    
-    public UserModel mergeUser(UserModel base, UpdateUserDTO update) throws EntryNotFoundException {
-        base.setEmail(update.getEmail());
-        return base;
-    }
+
 
     public UserModel updateUser(UserModel user, UpdateUserDTO dto) {
         if (dto.getEmail() != null) {
