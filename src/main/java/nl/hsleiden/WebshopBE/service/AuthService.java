@@ -18,10 +18,6 @@ public class AuthService {
         this.userDAO = userDAO;
     }
 
-    /**
-     * Haalt de huidige ingelogde gebruiker op
-     * @return De huidige gebruiker
-     */
     public UserModel getCurrentUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         
