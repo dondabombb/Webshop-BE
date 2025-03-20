@@ -15,17 +15,20 @@ import java.util.Date;
 @Component
 public class JWTUtil {
 
-    public String generateToken(String userId) throws IllegalArgumentException, JWTCreationException {
+    public String generateToken(String userId, String userRole) throws IllegalArgumentException, JWTCreationException {
         return JWT.create()
                 .withSubject("User Details")
                 .withClaim("userId", userId)
+                .withClaim("userRole", userRole)
                 .withIssuedAt(new Date())
+                .withIssuer("don")
                 .sign(Algorithm.HMAC256(JwtProperties.SECRET));
     }
 
     public String validateTokenAndRetrieveUserId(String token) throws JWTVerificationException {
         JWTVerifier verifier = JWT.require(Algorithm.HMAC256(JwtProperties.SECRET))
                 .withSubject("User Details")
+                .withIssuer("don")
                 .build();
         DecodedJWT jwt = verifier.verify(token);
 

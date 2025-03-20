@@ -1,6 +1,7 @@
 package nl.hsleiden.WebshopBE.model;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.sun.istack.NotNull;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -49,14 +50,18 @@ public class UserModel {
     @JoinColumn(name = "address_id")
     private AddressModel address;
 
-    @Column(nullable = false)
-    private boolean isAdmin = false;
+    @NotNull
+    public String userRole;
 
-    public UserModel(String firstName, String middleName, String lastName, String email, String password) {
+    @NotNull
+    public boolean isAdmin;
+
+    public UserModel(String firstName, String middleName, String lastName, String email, String password, String userRole) {
         this.firstName = firstName;
         this.middleName = middleName;
         this.lastName = lastName;
         this.email = email;
         this.password = password;
+        this.userRole = userRole;
     }
 }
