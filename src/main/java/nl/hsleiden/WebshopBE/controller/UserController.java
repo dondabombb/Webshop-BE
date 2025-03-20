@@ -12,10 +12,10 @@ import nl.hsleiden.WebshopBE.other.ApiResponse;
 import nl.hsleiden.WebshopBE.security.JWTUtil;
 import nl.hsleiden.WebshopBE.service.ApiResponseService;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.AuthenticationException;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import nl.hsleiden.WebshopBE.constant.ApiConstant;
@@ -26,7 +26,11 @@ import java.util.Optional;
 
 
 @RestController
-@RequestMapping()
+@RequestMapping(
+        headers = "Accept=application/json",
+        consumes = MediaType.APPLICATION_JSON_VALUE,
+        produces = MediaType.APPLICATION_JSON_VALUE
+)
 @Validated
 @AllArgsConstructor
 public class UserController {
@@ -34,7 +38,7 @@ public class UserController {
     private final UserDAO userDAO;
     private final AuthenticationManager authManager;
     private final JWTUtil jwtUtil;
-    private UserMapper userMapper;
+    private final UserMapper userMapper;
 
     @PostMapping(value = ApiConstant.register)
     @ResponseBody
@@ -70,6 +74,7 @@ public class UserController {
         ApiResponse response = new ApiResponse();
     
         String userId;
+        String userRole;
     
         Optional<UserModel> foundUser = userDAO.getUserByEmail(loginDTO.getEmail());
         if (!foundUser.isPresent()) {
@@ -77,6 +82,7 @@ public class UserController {
             return new ApiResponseService(false, HttpStatus.UNAUTHORIZED, response);
         }
         userId = foundUser.get().getId();
+        userRole = foundUser.get().getUserRole();
     
         UsernamePasswordAuthenticationToken authInputToken = new UsernamePasswordAuthenticationToken(userId, loginDTO.getPassword());
         try {
@@ -86,8 +92,10 @@ public class UserController {
             return new ApiResponseService(false, HttpStatus.UNAUTHORIZED, response);
         }
     
-        String token = jwtUtil.generateToken(userId);
+        String token = jwtUtil.generateToken(userId, userRole);
         System.out.println("Generated JWT token: " + token);
+        response.addField("JWT", token);
+        response.addField("userRole", userRole);
     
         return new ApiResponseService(true, HttpStatus.ACCEPTED, response);
     }

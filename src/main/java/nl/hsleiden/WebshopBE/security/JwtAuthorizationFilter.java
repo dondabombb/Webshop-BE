@@ -34,9 +34,9 @@ import io.jsonwebtoken.security.Keys;
 public class JwtAuthorizationFilter extends OncePerRequestFilter {
 
     @Autowired
-    private JWTUtil jwtUtil;
+    private MyUserDetailsService userDetailsService;
     @Autowired
-    private UserDAO userDAO;
+    private JWTUtil jwtUtil;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
@@ -51,19 +51,16 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
 
                 try {
                     String userId = jwtUtil.validateTokenAndRetrieveUserId(jwt);
-                    Optional<UserModel> userDetails = userDAO.getUser(userId);
+                    UserDetails userDetails = userDetailsService.loadUserByUsername(userId);
 
-                    if (userDetails.isPresent()) {
-                        UserModel user = userDetails.get();
-                        UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
-                                userId,
-                                user.getPassword()
-                        );
+                    UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
+                            userId,
+                            userDetails.getPassword(),
+                            userDetails.getAuthorities()
+                    );
 
-
-                        if (SecurityContextHolder.getContext().getAuthentication() == null) {
-                            SecurityContextHolder.getContext().setAuthentication(authToken);
-                        }
+                    if (SecurityContextHolder.getContext().getAuthentication() == null) {
+                        SecurityContextHolder.getContext().setAuthentication(authToken);
                     }
 
                 } catch (JWTVerificationException exc) {
@@ -76,38 +73,4 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
         filterChain.doFilter(request, response);
     }
 
-    private UsernamePasswordAuthenticationToken getAuthentication(HttpServletRequest request) {
-        String token = request.getHeader(JwtProperties.HEADER_STRING)
-                .replace(JwtProperties.TOKEN_PREFIX, "");
-        
-        try {
-            byte[] signingKey = JwtProperties.SECRET.getBytes();
-            
-            Claims claims = Jwts.parserBuilder()
-                    .setSigningKey(Keys.hmacShaKeyFor(signingKey))
-                    .build()
-                    .parseClaimsJws(token)
-                    .getBody();
-            
-            String username = claims.getSubject();
-            
-            if (username != null) {
-                String roles = (String) claims.get("rol");
-                List<SimpleGrantedAuthority> authorities = null;
-                
-                if (roles != null) {
-                    authorities = Arrays.stream(roles.split(","))
-                            .map(SimpleGrantedAuthority::new)
-                            .collect(Collectors.toList());
-                }
-                
-                return new UsernamePasswordAuthenticationToken(username, null, authorities);
-            }
-        } catch (ExpiredJwtException | UnsupportedJwtException | MalformedJwtException | 
-                SignatureException | IllegalArgumentException e) {
-            logger.error("JWT token validation failed", e);
-        }
-        
-        return null;
-    }
 } 
