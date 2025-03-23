@@ -17,6 +17,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import javax.annotation.security.RolesAllowed;
 import javax.validation.Valid;
 import java.util.Optional;
 
@@ -30,63 +31,61 @@ public class CartController {
     private final ProductDAO productDAO;
     private final AuthService authService;
 
+//    @RolesAllowed({"USER", "ADMIN"})
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     @GetMapping(value = ApiConstant.getCart)
-    @PreAuthorize("isAuthenticated()")
     @ResponseBody
     public ApiResponseService getCart() {
         ApiResponse response = new ApiResponse();
-        
+
         UserModel currentUser = authService.getCurrentUser();
         CartModel cart = currentUser.getCart();
-        
+
         response.setResult(cart);
         return new ApiResponseService(true, HttpStatus.OK, response);
     }
 
+    @RolesAllowed({"USER", "ADMIN"})
     @PostMapping(value = ApiConstant.addProductToCart)
-    @PreAuthorize("isAuthenticated()")
     @ResponseBody
     public ApiResponseService addProductToCart(@Valid @RequestBody CartProductDTO cartProductDTO) {
         ApiResponse response = new ApiResponse();
-        
+
         UserModel currentUser = authService.getCurrentUser();
         CartModel cart = currentUser.getCart();
-        
+
         Optional<ProductModel> productOpt = productDAO.getProduct(cartProductDTO.getProductId());
         if (!productOpt.isPresent()) {
             response.setMessage("Product niet gevonden");
             return new ApiResponseService(false, HttpStatus.NOT_FOUND, response);
         }
-        
+
         ProductModel product = productOpt.get();
-        
-        // Controleer of product al in winkelwagen zit
+
         Optional<CartProductModel> existingCartProduct = cartProductDAO.getCartProduct(cart.getId(), product.getId());
-        
+
         if (existingCartProduct.isPresent()) {
-            // Update hoeveelheid
             CartProductModel cartProduct = existingCartProduct.get();
             cartProduct.setQuantity(cartProduct.getQuantity() + cartProductDTO.getQuantity());
             cartProductDAO.updateCartProduct(cartProduct);
             response.setMessage("Product hoeveelheid bijgewerkt in winkelwagen");
         } else {
-            // Voeg nieuw product toe
             CartProductModel cartProduct = new CartProductModel(cart, product, cartProductDTO.getQuantity());
             cart.addProduct(cartProduct);
             cartProductDAO.createCartProduct(cartProduct);
             response.setMessage("Product toegevoegd aan winkelwagen");
         }
-        
+
         response.setResult(cart);
         return new ApiResponseService(true, HttpStatus.OK, response);
     }
 
+    @RolesAllowed({"USER", "ADMIN"})
     @PutMapping(value = ApiConstant.updateCartProduct)
-    @PreAuthorize("isAuthenticated()")
     @ResponseBody
     public ApiResponseService updateCartProduct(@PathVariable String productId, @RequestParam int quantity) {
         ApiResponse response = new ApiResponse();
-        
+
         UserModel currentUser = authService.getCurrentUser();
         CartModel cart = currentUser.getCart();
 

@@ -102,7 +102,7 @@ public class UserController {
 
 
     @GetMapping(value = ApiConstant.getUser)
-    @PreAuthorize("hasRole('ADMIN') or authentication.principal.username == #userId")
+    @PreAuthorize("hasRole('ADMIN')")
     @ResponseBody
     public ApiResponseService getUser(@PathVariable String userId) {
         ApiResponse response = new ApiResponse();
@@ -130,7 +130,7 @@ public class UserController {
     }
 
     @PutMapping(value = ApiConstant.getUser)
-    @PreAuthorize("hasRole('ADMIN') or authentication.principal.username == #userId")
+    @PreAuthorize("hasRole('ADMIN')")
     @ResponseBody
     public ApiResponseService updateUser(@PathVariable String userId, @Valid @RequestBody UpdateUserDTO updateUserDTO) {
         ApiResponse response = new ApiResponse();

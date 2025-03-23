@@ -25,16 +25,9 @@ public class AuthService {
             throw new RuntimeException("Geen geauthenticeerde gebruiker gevonden");
         }
         
-        Object principal = authentication.getPrincipal();
-        String email;
+        String userId = authentication.getName();
         
-        if (principal instanceof UserDetails) {
-            email = ((UserDetails) principal).getUsername();
-        } else {
-            email = principal.toString();
-        }
-        
-        Optional<UserModel> user = userDAO.getUserByEmail(email);
+        Optional<UserModel> user = userDAO.getUser(userId);
         
         if (!user.isPresent()) {
             throw new RuntimeException("Gebruiker niet gevonden in database");

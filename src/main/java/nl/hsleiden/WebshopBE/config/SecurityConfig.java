@@ -1,9 +1,9 @@
 package nl.hsleiden.WebshopBE.config;
 
-import nl.hsleiden.WebshopBE.security.JwtAuthenticationFilter;
+//import nl.hsleiden.WebshopBE.security.JwtAuthenticationFilter;
 import nl.hsleiden.WebshopBE.security.JwtAuthorizationFilter;
 import nl.hsleiden.WebshopBE.security.MyUserDetailsService;
-import nl.hsleiden.WebshopBE.service.CustomUserDetailsService;
+//import nl.hsleiden.WebshopBE.service.CustomUserDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -48,9 +48,13 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .cors()
                 .and()
                 .authorizeHttpRequests()
-                .antMatchers(HttpMethod.POST, "/api/auth/login").permitAll()
-                .antMatchers(HttpMethod.POST, "/api/auth/register").permitAll()
-                .antMatchers(HttpMethod.GET, "/api/product/**").permitAll()
+                .antMatchers("/api/auth/login").permitAll()
+                .antMatchers("/api/auth/register").permitAll()
+                .antMatchers("/api/product/**").permitAll()
+                .antMatchers("/api/cart/**").permitAll()
+                .antMatchers("/api/order/**").permitAll()
+                .antMatchers("/api/user/**").permitAll()
+                .anyRequest().authenticated()
                 .and()
                 .userDetailsService(uds)
                 .exceptionHandling()

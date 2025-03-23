@@ -25,7 +25,13 @@ public class AdminSeeder implements CommandLineRunner {
     public void run(String... args) {
         List<UserModel> users = userDAO.getAllUsers();
         if (users == null || users.isEmpty()) {
-            UserModel adminUser = new UserModel("John", "", "Doe", "admin@example.com", passwordEncoder.encode("password123"), "AMDMIN");
+            UserModel adminUser = new UserModel();
+            adminUser.setFirstName("John");
+            adminUser.setMiddleName("");
+            adminUser.setLastName("Doe");
+            adminUser.setEmail("admin@example.com");
+            adminUser.setPassword(passwordEncoder.encode("password123"));
+            adminUser.setUserRole("ADMIN");
             adminUser.setAdmin(true);
             userDAO.createUser(adminUser);
             System.out.println("Admin user created successfully!");

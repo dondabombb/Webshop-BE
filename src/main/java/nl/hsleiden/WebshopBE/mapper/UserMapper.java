@@ -29,7 +29,7 @@ public class UserMapper {
         String email = createUserDTO.getEmail();
         String password = createUserDTO.getPassword();
 
-        UserModel user = new UserModel(firstName, middleName, lastName, email, passwordEncoder.encode(password), "ROLE_USER");
+        UserModel user = new UserModel(firstName, middleName, lastName, email, passwordEncoder.encode(password), "USER");
         
         // Create a new empty cart for the user
         CartModel cart = new CartModel();
