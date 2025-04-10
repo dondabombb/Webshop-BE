@@ -9,7 +9,6 @@ public class ApiConstant {
     // Cart routes
     public static final String getCart = apiPrefix + "cart";
     public static final String addProductToCart = apiPrefix + "cart/products";
-    public static final String updateCartProduct = apiPrefix + "cart/products/{productId}";
     public static final String getProductFromCart = apiPrefix + "cart/products/{productId}";
 
     // Users routes
