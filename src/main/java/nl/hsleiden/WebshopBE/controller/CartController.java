@@ -1,10 +1,12 @@
 package nl.hsleiden.WebshopBE.controller;
 
 import lombok.AllArgsConstructor;
+import nl.hsleiden.WebshopBE.DAO.CartDAO;
 import nl.hsleiden.WebshopBE.DAO.CartProductDAO;
 import nl.hsleiden.WebshopBE.DAO.ProductDAO;
 import nl.hsleiden.WebshopBE.DTO.CartProductDTO;
 import nl.hsleiden.WebshopBE.constant.ApiConstant;
+import nl.hsleiden.WebshopBE.exceptions.EntryNotFoundException;
 import nl.hsleiden.WebshopBE.model.CartModel;
 import nl.hsleiden.WebshopBE.model.CartProductModel;
 import nl.hsleiden.WebshopBE.model.ProductModel;
@@ -30,6 +32,7 @@ public class CartController {
     private final CartProductDAO cartProductDAO;
     private final ProductDAO productDAO;
     private final AuthService authService;
+    private final CartDAO cartDAO;
 
 //    @RolesAllowed({"USER", "ADMIN"})
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
@@ -45,49 +48,61 @@ public class CartController {
         return new ApiResponseService(true, HttpStatus.OK, response);
     }
 
-    @RolesAllowed({"USER", "ADMIN"})
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     @PostMapping(value = ApiConstant.addProductToCart)
     @ResponseBody
-    public ApiResponseService addProductToCart(@Valid @RequestBody CartProductDTO cartProductDTO) {
+    public ApiResponseService addProductToCart(@RequestBody @Valid CartProductDTO cartProductDTO) throws EntryNotFoundException {
         ApiResponse response = new ApiResponse();
 
-        UserModel currentUser = authService.getCurrentUser();
-        CartModel cart = currentUser.getCart();
-
-        Optional<ProductModel> productOpt = productDAO.getProduct(cartProductDTO.getProductId());
-        if (!productOpt.isPresent()) {
-            response.setMessage("Product niet gevonden");
+        Optional<CartModel> foundCart = this.cartDAO.getCart(cartProductDTO.getCartId());
+        if (!foundCart.isPresent()){
+            response.setMessage("Kan de huidige winkelwagen niet vinden");
             return new ApiResponseService(false, HttpStatus.NOT_FOUND, response);
         }
 
-        ProductModel product = productOpt.get();
-
-        Optional<CartProductModel> existingCartProduct = cartProductDAO.getCartProduct(cart.getId(), product.getId());
-
-        if (existingCartProduct.isPresent()) {
-            CartProductModel cartProduct = existingCartProduct.get();
-            cartProduct.setQuantity(cartProduct.getQuantity() + cartProductDTO.getQuantity());
-            cartProductDAO.updateCartProduct(cartProduct);
-            response.setMessage("Product hoeveelheid bijgewerkt in winkelwagen");
-        } else {
-            CartProductModel cartProduct = new CartProductModel(cart, product, cartProductDTO.getQuantity());
-            cart.addProduct(cartProduct);
-            cartProductDAO.createCartProduct(cartProduct);
-            response.setMessage("Product toegevoegd aan winkelwagen");
+        Optional<ProductModel> foundProduct = this.productDAO.getProduct(cartProductDTO.getProductId());
+        if (!foundProduct.isPresent()){
+            response.setMessage("Dit product bestaat niet");
+            return new ApiResponseService(false, HttpStatus.NOT_FOUND, response);
         }
 
-        response.setResult(cart);
-        return new ApiResponseService(true, HttpStatus.OK, response);
+        CartModel cart = foundCart.get();
+        ProductModel product = foundProduct.get();
+        int quantity = cartProductDTO.getQuantity();
+
+        CartProductModel newCartProduct = new CartProductModel(
+                cart,
+                product,
+                quantity
+        );
+
+        Optional<CartProductModel> cartProduct = this.cartProductDAO.getCartProduct(cart.getId(), product.getId());
+        if(cartProduct.isPresent()){
+            int oldQuantity = cartProduct.get().getQuantity();
+            int newQuantity = oldQuantity + quantity;
+            cartProduct.get().setQuantity(newQuantity);
+        } else {
+            CartProductModel savedCartProduct = this.cartProductDAO.createCartProduct(newCartProduct);
+            cart.addProduct(savedCartProduct);
+        }
+
+        CartModel updatedCart = this.cartDAO.updateCart(cart);
+        response.setResult(updatedCart);
+        response.setMessage("Product is toegevoegd aan winkelwagen");
+        return new ApiResponseService(true, HttpStatus.CREATED, response);
     }
 
-    @RolesAllowed({"USER", "ADMIN"})
-    @PutMapping(value = ApiConstant.updateCartProduct)
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
+    @DeleteMapping(value = ApiConstant.getProductFromCart)
     @ResponseBody
-    public ApiResponseService updateCartProduct(@PathVariable String productId, @RequestParam int quantity) {
+    public ApiResponseService removeProductFromCart(@PathVariable String cartId, @PathVariable String productId) throws EntryNotFoundException {
         ApiResponse response = new ApiResponse();
 
-        UserModel currentUser = authService.getCurrentUser();
-        CartModel cart = currentUser.getCart();
+        Optional<CartModel> foundCart = this.cartDAO.getCart(cartId);
+        if (!foundCart.isPresent()){
+            response.setMessage("Kan de huidige winkelwagen niet vinden");
+            return new ApiResponseService(false, HttpStatus.NOT_FOUND, response);
+        }
 
         Optional<ProductModel> foundProduct = this.productDAO.getProduct(productId);
         if (!foundProduct.isPresent()){
@@ -95,6 +110,7 @@ public class CartController {
             return new ApiResponseService(false, HttpStatus.NOT_FOUND, response);
         }
 
+        CartModel cart = foundCart.get();
         ProductModel product = foundProduct.get();
 
         Optional<CartProductModel> cartProduct = this.cartProductDAO.getCartProduct(cart.getId(), product.getId());
@@ -103,16 +119,9 @@ public class CartController {
             return new ApiResponseService(false, HttpStatus.NOT_FOUND, response);
         }
 
-        if(quantity <= 0){
-            this.cartProductDAO.deleteCartProduct(cartProduct.get());
-            response.setMessage("Product is verwijderd uit winkelwagen");
-        } else {
-            cartProduct.get().setQuantity(quantity);
-            this.cartProductDAO.updateCartProduct(cartProduct.get());
-            response.setMessage("Product hoeveelheid is aangepast");
-        }
-
+        this.cartProductDAO.deleteCartProduct(cartProduct.get());
+        response.setMessage("Product is verwijderd uit de winkelwagen");
         response.setResult(cart);
-        return new ApiResponseService(true, HttpStatus.OK, response);
+        return new ApiResponseService(true, HttpStatus.ACCEPTED, response);
     }
 }

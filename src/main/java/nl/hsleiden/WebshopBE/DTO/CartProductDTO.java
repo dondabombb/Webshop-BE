@@ -10,6 +10,9 @@ import javax.validation.constraints.NotNull;
 @Setter
 public class CartProductDTO {
 
+    @NotNull(message = "CartId is verplicht")
+    private String cartId;
+
     @NotNull(message = "ProductId is verplicht")
     private String productId;
 

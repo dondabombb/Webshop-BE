@@ -96,6 +96,7 @@ public class UserController {
         System.out.println("Generated JWT token: " + token);
         response.addField("JWT", token);
         response.addField("userRole", userRole);
+        response.addField("userId", userId);
     
         return new ApiResponseService(true, HttpStatus.ACCEPTED, response);
     }
