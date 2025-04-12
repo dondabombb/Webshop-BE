@@ -2,7 +2,6 @@ package nl.hsleiden.WebshopBE.DAO;
 
 import nl.hsleiden.WebshopBE.DAO.repository.CartRepository;
 import nl.hsleiden.WebshopBE.exceptions.EntryNotFoundException;
-import nl.hsleiden.WebshopBE.mapper.CartMapper;
 import nl.hsleiden.WebshopBE.model.CartModel;
 import org.springframework.stereotype.Component;
 

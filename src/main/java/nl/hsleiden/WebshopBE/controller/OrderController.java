@@ -3,11 +3,13 @@ package nl.hsleiden.WebshopBE.controller;
 import lombok.AllArgsConstructor;
 import nl.hsleiden.WebshopBE.DAO.CartDAO;
 import nl.hsleiden.WebshopBE.DAO.OrderDAO;
+import nl.hsleiden.WebshopBE.DAO.PaymentDAO;
 import nl.hsleiden.WebshopBE.DTO.OrderDTO;
 import nl.hsleiden.WebshopBE.constant.ApiConstant;
 import nl.hsleiden.WebshopBE.mapper.OrderMapper;
 import nl.hsleiden.WebshopBE.model.CartModel;
 import nl.hsleiden.WebshopBE.model.OrderModel;
+import nl.hsleiden.WebshopBE.model.PaymentModel;
 import nl.hsleiden.WebshopBE.model.UserModel;
 import nl.hsleiden.WebshopBE.other.ApiResponse;
 import nl.hsleiden.WebshopBE.service.ApiResponseService;
@@ -29,6 +31,7 @@ public class OrderController {
 
     private final OrderDAO orderDAO;
     private final CartDAO cartDAO;
+    private final PaymentDAO paymentDAO;
     private final OrderMapper orderMapper;
     private final AuthService authService;
 
@@ -47,8 +50,22 @@ public class OrderController {
             return new ApiResponseService(false, HttpStatus.BAD_REQUEST, response);
         }
         
+        // Controleer of de gebruiker een verzendadres heeft
+        if (currentUser.getShippingAddress() == null) {
+            response.setMessage("Voeg eerst een verzendadres toe aan je account");
+            return new ApiResponseService(false, HttpStatus.BAD_REQUEST, response);
+        }
+
+        // Controleer of de betaalmethode geldig is
+        PaymentModel paymentMethod = paymentDAO.findByPaymentOption(orderDTO.getPaymentMethod());
+        if (paymentMethod == null) {
+            response.setMessage("Ongeldige betaalmethode");
+            return new ApiResponseService(false, HttpStatus.BAD_REQUEST, response);
+        }
+        
         // Maak een nieuwe bestelling
         OrderModel order = orderMapper.toModel(orderDTO, currentUser, cart);
+        order.setPaymentMethod(paymentMethod.getId());
         OrderModel savedOrder = orderDAO.createOrder(order);
         
         // Maak een nieuwe lege winkelwagen voor de gebruiker

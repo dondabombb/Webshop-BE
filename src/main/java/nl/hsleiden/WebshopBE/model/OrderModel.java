@@ -50,6 +50,9 @@ public class OrderModel {
     @Column(nullable = false)
     private double totalAmount;
 
+    @Column(nullable = false)
+    private String paymentMethod;
+
     // Voeg een item toe aan de bestelling
     public void addItem(OrderItemModel item) {
         items.add(item);

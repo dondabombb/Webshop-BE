@@ -47,8 +47,12 @@ public class UserModel {
     private List<OrderModel> orders = new ArrayList<>();
 
     @ManyToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "address_id")
-    private AddressModel address;
+    @JoinColumn(name = "shipping_address_id")
+    private AddressModel shippingAddress;
+
+    @ManyToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "billing_address_id")
+    private AddressModel billingAddress;
 
     @NotNull
     public String userRole;
