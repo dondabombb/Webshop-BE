@@ -16,9 +16,14 @@ import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import nl.hsleiden.WebshopBE.constant.ApiConstant;
+import nl.hsleiden.WebshopBE.model.AddressModel;
+import nl.hsleiden.WebshopBE.DTO.AddressDTO;
+import nl.hsleiden.WebshopBE.mapper.AddressMapper;
 
 import javax.validation.Valid;
 import java.util.List;
@@ -26,11 +31,7 @@ import java.util.Optional;
 
 
 @RestController
-@RequestMapping(
-        headers = "Accept=application/json",
-        consumes = MediaType.APPLICATION_JSON_VALUE,
-        produces = MediaType.APPLICATION_JSON_VALUE
-)
+@RequestMapping()
 @Validated
 @AllArgsConstructor
 public class UserController {
@@ -39,6 +40,7 @@ public class UserController {
     private final AuthenticationManager authManager;
     private final JWTUtil jwtUtil;
     private final UserMapper userMapper;
+    private final AddressMapper addressMapper;
 
     @PostMapping(value = ApiConstant.register)
     @ResponseBody
@@ -103,7 +105,7 @@ public class UserController {
 
 
     @GetMapping(value = ApiConstant.getUser)
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     @ResponseBody
     public ApiResponseService getUser(@PathVariable String userId) {
         ApiResponse response = new ApiResponse();
@@ -112,6 +114,17 @@ public class UserController {
         if (!user.isPresent()) {
             response.setMessage("Gebruiker niet gevonden");
             return new ApiResponseService(false, HttpStatus.NOT_FOUND, response);
+        }
+
+        // Check if the requesting user is either an ADMIN or the user themselves
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        boolean isAdmin = authentication.getAuthorities().stream()
+                .anyMatch(auth -> auth.getAuthority().equals("ROLE_ADMIN"));
+        boolean isSelf = authentication.getName().equals(userId);
+
+        if (!isAdmin && !isSelf) {
+            response.setMessage("Je hebt geen toegang tot deze gebruiker");
+            return new ApiResponseService(false, HttpStatus.FORBIDDEN, response);
         }
 
         response.setResult(user.get());
@@ -175,6 +188,74 @@ public class UserController {
         userDAO.deleteUser(userId);
 
         response.setMessage("Gebruiker succesvol verwijderd");
+        return new ApiResponseService(true, HttpStatus.OK, response);
+    }
+
+    @PutMapping(value = ApiConstant.addShippingAddressToUser, consumes = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("isAuthenticated()")
+    @ResponseBody
+    public ApiResponseService updateShippingAddress(@PathVariable String userId, @Valid @RequestBody AddressDTO addressDTO) {
+        ApiResponse response = new ApiResponse();
+
+        // Check if user exists
+        Optional<UserModel> existingUser = userDAO.getUser(userId);
+        if (existingUser.isEmpty()) {
+            response.setMessage("Gebruiker niet gevonden");
+            return new ApiResponseService(false, HttpStatus.NOT_FOUND, response);
+        }
+
+        // Check if user is authorized (either admin or the user themselves)
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        boolean isAdmin = authentication.getAuthorities().stream()
+                .anyMatch(auth -> auth.getAuthority().equals("ROLE_ADMIN"));
+        boolean isSelf = authentication.getName().equals(userId);
+
+        if (!isAdmin && !isSelf) {
+            response.setMessage("Je hebt geen toegang tot deze gebruiker");
+            return new ApiResponseService(false, HttpStatus.FORBIDDEN, response);
+        }
+
+        UserModel user = existingUser.get();
+        AddressModel addressModel = addressMapper.toModel(addressDTO);
+        user.setShippingAddress(addressModel);
+        UserModel updatedUser = userDAO.updateUser(user);
+
+        response.setMessage("Verzendadres succesvol bijgewerkt");
+        response.setResult(updatedUser);
+        return new ApiResponseService(true, HttpStatus.OK, response);
+    }
+
+    @PutMapping(value = ApiConstant.addBillingAddressToUser, consumes = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("isAuthenticated()")
+    @ResponseBody
+    public ApiResponseService updateBillingAddress(@PathVariable String userId, @Valid @RequestBody AddressDTO addressDTO) {
+        ApiResponse response = new ApiResponse();
+
+        // Check if user exists
+        Optional<UserModel> existingUser = userDAO.getUser(userId);
+        if (existingUser.isEmpty()) {
+            response.setMessage("Gebruiker niet gevonden");
+            return new ApiResponseService(false, HttpStatus.NOT_FOUND, response);
+        }
+
+        // Check if user is authorized (either admin or the user themselves)
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        boolean isAdmin = authentication.getAuthorities().stream()
+                .anyMatch(auth -> auth.getAuthority().equals("ROLE_ADMIN"));
+        boolean isSelf = authentication.getName().equals(userId);
+
+        if (!isAdmin && !isSelf) {
+            response.setMessage("Je hebt geen toegang tot deze gebruiker");
+            return new ApiResponseService(false, HttpStatus.FORBIDDEN, response);
+        }
+
+        UserModel user = existingUser.get();
+        AddressModel addressModel = addressMapper.toModel(addressDTO);
+        user.setBillingAddress(addressModel);
+        UserModel updatedUser = userDAO.updateUser(user);
+
+        response.setMessage("Factuuradres succesvol bijgewerkt");
+        response.setResult(updatedUser);
         return new ApiResponseService(true, HttpStatus.OK, response);
     }
 }

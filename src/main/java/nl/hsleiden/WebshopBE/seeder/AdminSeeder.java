@@ -1,6 +1,7 @@
 package nl.hsleiden.WebshopBE.seeder;
 
 import nl.hsleiden.WebshopBE.DAO.UserDAO;
+import nl.hsleiden.WebshopBE.model.CartModel;
 import nl.hsleiden.WebshopBE.model.UserModel;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
@@ -33,6 +34,9 @@ public class AdminSeeder implements CommandLineRunner {
             adminUser.setPassword(passwordEncoder.encode("password123"));
             adminUser.setUserRole("ADMIN");
             adminUser.setAdmin(true);
+            CartModel cart = new CartModel();
+            cart.setUser(adminUser);
+            adminUser.setCart(cart);
             userDAO.createUser(adminUser);
             System.out.println("Admin user created successfully!");
         } else {

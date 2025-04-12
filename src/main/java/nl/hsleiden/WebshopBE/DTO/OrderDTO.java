@@ -3,17 +3,11 @@ package nl.hsleiden.WebshopBE.DTO;
 import lombok.Getter;
 import lombok.Setter;
 
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
+import javax.validation.constraints.NotBlank;
 
 @Getter
 @Setter
 public class OrderDTO {
-
-    @NotNull(message = "Verzendadres is verplicht")
-    @Valid
-    private AddressDTO shippingAddress;
-
-    @Valid
-    private AddressDTO billingAddress; // If null, use shipping address
+    @NotBlank(message = "Betaalmethode is verplicht")
+    private String paymentMethod;
 } 
