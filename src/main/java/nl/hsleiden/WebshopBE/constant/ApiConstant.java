@@ -27,8 +27,6 @@ public class ApiConstant {
     public static final String updateOrderStatus = apiPrefix + "order/{orderId}/status";
 
     // Payment methods routes
-    public static final String getAllPaymentMethods = "/api/payment-methods";
-    public static final String getPaymentMethod = "/api/payment-methods/{paymentId}";
-    public static final String updatePaymentMethod = "/api/payment-methods/{paymentId}";
-    public static final String deletePaymentMethod = "/api/payment-methods/{paymentId}";
+    public static final String getAllPaymentMethods = apiPrefix + "payment-methods";
+    public static final String getPaymentMethod = apiPrefix + "payment-methods/{paymentId}";
 }

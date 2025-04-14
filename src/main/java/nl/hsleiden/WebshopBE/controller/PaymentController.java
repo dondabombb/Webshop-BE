@@ -8,6 +8,7 @@ import nl.hsleiden.WebshopBE.other.ApiResponse;
 import nl.hsleiden.WebshopBE.service.ApiResponseService;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -15,6 +16,7 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping()
+@Validated
 @AllArgsConstructor
 public class PaymentController {
 
@@ -46,7 +48,7 @@ public class PaymentController {
         return new ApiResponseService(true, HttpStatus.OK, response);
     }
 
-    @PutMapping(value = ApiConstant.updatePaymentMethod)
+    @PutMapping(value = ApiConstant.getPaymentMethod)
     @PreAuthorize("hasRole('ADMIN')")
     @ResponseBody
     public ApiResponseService updatePaymentMethod(@PathVariable String paymentId, @RequestBody PaymentModel updatedPayment) {
@@ -67,7 +69,7 @@ public class PaymentController {
         return new ApiResponseService(true, HttpStatus.OK, response);
     }
 
-    @DeleteMapping(value = ApiConstant.deletePaymentMethod)
+    @DeleteMapping(value = ApiConstant.getPaymentMethod)
     @PreAuthorize("hasRole('ADMIN')")
     @ResponseBody
     public ApiResponseService deletePaymentMethod(@PathVariable String paymentId) {
