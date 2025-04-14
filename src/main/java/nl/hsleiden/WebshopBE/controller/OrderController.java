@@ -65,7 +65,6 @@ public class OrderController {
         
         // Maak een nieuwe bestelling
         OrderModel order = orderMapper.toModel(orderDTO, currentUser, cart);
-        order.setPaymentMethod(paymentMethod.getId());
         OrderModel savedOrder = orderDAO.createOrder(order);
         
         // Maak een nieuwe lege winkelwagen voor de gebruiker

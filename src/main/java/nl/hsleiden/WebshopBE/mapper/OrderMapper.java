@@ -21,6 +21,7 @@ public class OrderMapper {
             orderItem.setProduct(cartProduct.getProduct());
             orderItem.setQuantity(cartProduct.getQuantity());
             orderItem.setPrice(cartProduct.getProduct().getPrice());
+            orderItem.setProductName(cartProduct.getProduct().getName());
             orderItems.add(orderItem);
         }
         order.setItems(orderItems);
@@ -35,6 +36,8 @@ public class OrderMapper {
             .mapToDouble(cp -> cp.getProduct().getPrice() * cp.getQuantity())
             .sum();
         order.setTotalAmount(totalAmount);
+
+        order.setPaymentMethod(orderDTO.getPaymentMethod());
         
         return order;
     }

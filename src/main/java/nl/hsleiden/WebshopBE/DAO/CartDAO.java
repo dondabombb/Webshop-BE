@@ -11,7 +11,7 @@ import java.util.Optional;
 public class CartDAO {
 
     private final CartRepository cartRepository;
-    public CartDAO(CartRepository cartRepository, CartMapper cartMapper) {
+    public CartDAO(CartRepository cartRepository) {
         this.cartRepository = cartRepository;
     }
 
