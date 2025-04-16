@@ -30,4 +30,7 @@ public class CartProductDAO {
         this.cartProductRepository.saveAndFlush(cartProduct);
     }
 
+    public void deleteAllByCartId(String cartId){
+        this.cartProductRepository.deleteAllByCartId(cartId);
+    };
 }

@@ -42,7 +42,8 @@ public class CartModel {
         cartProduct.setCart(null);
     }
 
-    public void removeAllProducts(){
+    public void removeAllProducts() {
+        products.forEach(product -> product.setCart(null));
         products.clear();
     }
 
