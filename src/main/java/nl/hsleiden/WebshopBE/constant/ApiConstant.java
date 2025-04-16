@@ -9,7 +9,10 @@ public class ApiConstant {
     // Cart routes
     public static final String getCart = apiPrefix + "cart";
     public static final String addProductToCart = apiPrefix + "cart/products";
-    public static final String getProductFromCart = apiPrefix + "cart/products/{productId}";
+    public static final String removeProductFromCart = apiPrefix + "cart/products/{cartId}/{productId}";
+    public static final String clearCart = apiPrefix + "cart/clear";
+    public static final String incrementProduct = apiPrefix + "cart/product/increment";
+    public static final String decrementProduct = apiPrefix + "cart/product/decrement";
 
     // Users routes
     public static final String getUser = apiPrefix + "user/{userId}";

@@ -19,7 +19,6 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import javax.annotation.security.RolesAllowed;
 import javax.validation.Valid;
 import java.util.Optional;
 
@@ -93,7 +92,7 @@ public class CartController {
     }
 
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
-    @DeleteMapping(value = ApiConstant.getProductFromCart)
+    @DeleteMapping(value = ApiConstant.removeProductFromCart)
     @ResponseBody
     public ApiResponseService removeProductFromCart(@PathVariable String cartId, @PathVariable String productId) throws EntryNotFoundException {
         ApiResponse response = new ApiResponse();
@@ -121,7 +120,54 @@ public class CartController {
 
         this.cartProductDAO.deleteCartProduct(cartProduct.get());
         response.setMessage("Product is verwijderd uit de winkelwagen");
-        response.setResult(cart);
+        response.setResult(this.cartDAO.getCart(cartId));
         return new ApiResponseService(true, HttpStatus.ACCEPTED, response);
+    }
+
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
+    @PutMapping(value = ApiConstant.incrementProduct)
+    @ResponseBody
+    public ApiResponseService incrementProduct(@RequestBody @Valid CartProductDTO cartProductDTO) throws EntryNotFoundException {
+        ApiResponse response = new ApiResponse();
+
+        Optional<CartProductModel> cartProduct = this.cartProductDAO.getCartProduct(cartProductDTO.getCartId(), cartProductDTO.getProductId());
+        if (!cartProduct.isPresent()) {
+            response.setMessage("Product not found in cart");
+            return new ApiResponseService(false, HttpStatus.NOT_FOUND, response);
+        }
+
+        CartProductModel product = cartProduct.get();
+        product.setQuantity(product.getQuantity() + cartProductDTO.getQuantity());
+        this.cartProductDAO.updateCartProduct(product);
+
+        response.setMessage("Product quantity increased");
+        response.setResult(product.getCart());
+        return new ApiResponseService(true, HttpStatus.OK, response);
+    }
+
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
+    @PutMapping(value = ApiConstant.decrementProduct)
+    @ResponseBody
+    public ApiResponseService decrementProduct(@RequestBody @Valid CartProductDTO cartProductDTO) throws EntryNotFoundException {
+        ApiResponse response = new ApiResponse();
+
+        Optional<CartProductModel> cartProduct = this.cartProductDAO.getCartProduct(cartProductDTO.getCartId(), cartProductDTO.getProductId());
+        if (!cartProduct.isPresent()) {
+            response.setMessage("Product not found in cart");
+            return new ApiResponseService(false, HttpStatus.NOT_FOUND, response);
+        }
+
+        CartProductModel product = cartProduct.get();
+        if (product.getQuantity() <= 1) {
+            this.cartProductDAO.deleteCartProduct(product);
+            response.setMessage("Product removed from cart");
+        } else {
+            product.setQuantity(product.getQuantity() - cartProductDTO.getQuantity());
+            this.cartProductDAO.updateCartProduct(product);
+            response.setMessage("Product quantity decreased");
+        }
+
+        response.setResult(product.getCart());
+        return new ApiResponseService(true, HttpStatus.OK, response);
     }
 }
