@@ -2,6 +2,7 @@ package nl.hsleiden.WebshopBE.controller;
 
 import lombok.AllArgsConstructor;
 import nl.hsleiden.WebshopBE.DAO.PaymentDAO;
+import nl.hsleiden.WebshopBE.DTO.PaymentDTO;
 import nl.hsleiden.WebshopBE.constant.ApiConstant;
 import nl.hsleiden.WebshopBE.model.PaymentModel;
 import nl.hsleiden.WebshopBE.other.ApiResponse;
@@ -51,7 +52,7 @@ public class PaymentController {
     @PutMapping(value = ApiConstant.getPaymentMethod)
     @PreAuthorize("hasRole('ADMIN')")
     @ResponseBody
-    public ApiResponseService updatePaymentMethod(@PathVariable String paymentId, @RequestBody PaymentModel updatedPayment) {
+    public ApiResponseService updatePaymentMethod(@PathVariable String paymentId, @RequestBody PaymentDTO updatedPayment) {
         ApiResponse response = new ApiResponse();
         Optional<PaymentModel> existingPayment = paymentDAO.findById(paymentId);
         
@@ -61,7 +62,7 @@ public class PaymentController {
         }
         
         PaymentModel payment = existingPayment.get();
-        payment.setPaymentOption(updatedPayment.getPaymentOption());
+        payment.setPaymentOption(updatedPayment.getPayment());
         PaymentModel savedPayment = paymentDAO.save(payment);
         
         response.setMessage("Betaalmethode succesvol bijgewerkt");
@@ -83,5 +84,24 @@ public class PaymentController {
         paymentDAO.deleteById(paymentId);
         response.setMessage("Betaalmethode succesvol verwijderd");
         return new ApiResponseService(true, HttpStatus.OK, response);
+    }
+    
+    @PostMapping(value = ApiConstant.getAllPaymentMethods)
+    @PreAuthorize("hasRole('ADMIN')")
+    @ResponseBody
+    public ApiResponseService createPayment(@RequestBody String newPayment) {
+        ApiResponse response = new ApiResponse();
+        
+        try {
+            PaymentModel payment = new PaymentModel();
+            payment.setPaymentOption(newPayment);
+            PaymentModel savedPayment = paymentDAO.save(payment);
+            response.setMessage("Betaalmethode succesvol aangemaakt");
+            response.setResult(savedPayment);
+            return new ApiResponseService(true, HttpStatus.CREATED, response);
+        } catch (Exception e) {
+            response.setMessage("Fout bij het aanmaken van betaalmethode: " + e.getMessage());
+            return new ApiResponseService(false, HttpStatus.BAD_REQUEST, response);
+        }
     }
 }

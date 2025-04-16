@@ -2,13 +2,13 @@ package nl.hsleiden.WebshopBE.mapper;
 
 import nl.hsleiden.WebshopBE.DTO.User.CreateUserDTO;
 import nl.hsleiden.WebshopBE.DTO.User.UpdateUserDTO;
-import nl.hsleiden.WebshopBE.exceptions.EntryNotFoundException;
-import nl.hsleiden.WebshopBE.model.AddressModel;
 import nl.hsleiden.WebshopBE.model.CartModel;
 import nl.hsleiden.WebshopBE.model.UserModel;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
+
+import javax.validation.Valid;
 
 @Component
 public class UserMapper {
@@ -40,9 +40,17 @@ public class UserMapper {
     }
 
 
-    public UserModel updateUser(UserModel user, UpdateUserDTO dto) {
+    public UserModel updateUser(UserModel user, @Valid UpdateUserDTO dto) {
         if (dto.getEmail() != null) {
             user.setEmail(dto.getEmail());
+        }
+
+        if (dto.getFirstName() != null) {
+            user.setFirstName(dto.getFirstName());
+        }
+
+        if (dto.getLastName() != null) {
+            user.setLastName(dto.getLastName());
         }
         return user;
     }
