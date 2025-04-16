@@ -47,22 +47,22 @@ public class UserController {
     public ApiResponseService registerUser(@Valid @RequestBody CreateUserDTO createUserDTO) {
         ApiResponse response = new ApiResponse();
 
-        // Controleer of email al in gebruik is
+
         Optional<UserModel> existingUser = userDAO.getUserByEmail(createUserDTO.getEmail());
         if (existingUser.isPresent()) {
             response.setMessage("Email is al in gebruik");
             return new ApiResponseService(false, HttpStatus.CONFLICT, response);
         }
 
-        // Maak nieuwe gebruiker
+
         UserModel user = userMapper.convertToModel(createUserDTO);
 
-        // Maak een nieuwe winkelwagen voor de gebruiker
+
         CartModel cart = new CartModel();
         cart.setUser(user);
         user.setCart(cart);
 
-        // Sla gebruiker op
+
         UserModel savedUser = userDAO.createUser(user);
 
         response.setMessage("Gebruiker succesvol geregistreerd");
@@ -95,7 +95,6 @@ public class UserController {
         }
     
         String token = jwtUtil.generateToken(userId, userRole);
-        System.out.println("Generated JWT token: " + token);
         response.addField("JWT", token);
         response.addField("userRole", userRole);
         response.addField("userId", userId);
@@ -155,7 +154,7 @@ public class UserController {
             return new ApiResponseService(false, HttpStatus.NOT_FOUND, response);
         }
 
-        // Controleer of email al in gebruik is door een andere gebruiker
+
         if (updateUserDTO.getEmail() != null) {
             Optional<UserModel> userWithEmail = userDAO.getUserByEmail(updateUserDTO.getEmail());
             if (userWithEmail.isPresent() && !userWithEmail.get().getId().equals(userId)) {
@@ -197,7 +196,7 @@ public class UserController {
     public ApiResponseService updateShippingAddress(@PathVariable String userId, @Valid @RequestBody AddressDTO addressDTO) {
         ApiResponse response = new ApiResponse();
 
-        // Check if user exists
+
         Optional<UserModel> existingUser = userDAO.getUser(userId);
         if (existingUser.isEmpty()) {
             response.setMessage("Gebruiker niet gevonden");
