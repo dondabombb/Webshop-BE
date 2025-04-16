@@ -30,8 +30,7 @@ import java.util.Optional;
 public class ProductController {
     private final ProductDAO productDAO;
     private final ProductMapper productMapper;
-    private CartDAO cartDAO;
-    private CartProductDAO cartProductDAO;
+
 
     @GetMapping(value = ApiConstant.getAllProducts)
     @ResponseBody
@@ -92,7 +91,7 @@ public class ProductController {
             return new ApiResponseService(false, HttpStatus.NOT_FOUND, response);
         }
         
-        // Controleer of nieuwe naam al in gebruik is door een ander product
+
         if (productDTO.getName() != null) {
             Optional<ProductModel> productWithName = productDAO.getProduct(productDTO.getName());
             if (productWithName.isPresent() && !productWithName.get().getId().equals(productId)) {

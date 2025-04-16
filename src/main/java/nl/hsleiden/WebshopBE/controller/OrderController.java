@@ -44,30 +44,30 @@ public class OrderController {
         UserModel currentUser = authService.getCurrentUser();
         CartModel cart = currentUser.getCart();
         
-        // Controleer of de winkelwagen niet leeg is
+
         if (cart.getProducts().isEmpty()) {
             response.setMessage("Kan geen bestelling plaatsen met een lege winkelwagen");
             return new ApiResponseService(false, HttpStatus.BAD_REQUEST, response);
         }
         
-        // Controleer of de gebruiker een verzendadres heeft
+
         if (currentUser.getShippingAddress() == null) {
             response.setMessage("Voeg eerst een verzendadres toe aan je account");
             return new ApiResponseService(false, HttpStatus.BAD_REQUEST, response);
         }
 
-        // Controleer of de betaalmethode geldig is
+
         PaymentModel paymentMethod = paymentDAO.findByPaymentOption(orderDTO.getPaymentMethod());
         if (paymentMethod == null) {
             response.setMessage("Ongeldige betaalmethode");
             return new ApiResponseService(false, HttpStatus.BAD_REQUEST, response);
         }
         
-        // Maak een nieuwe bestelling
+
         OrderModel order = orderMapper.toModel(orderDTO, currentUser, cart);
         OrderModel savedOrder = orderDAO.createOrder(order);
         
-        // Maak een nieuwe lege winkelwagen voor de gebruiker
+
         CartModel newCart = new CartModel();
         newCart.setUser(currentUser);
         currentUser.setCart(newCart);
@@ -89,8 +89,7 @@ public class OrderController {
             response.setMessage("Bestelling niet gevonden");
             return new ApiResponseService(false, HttpStatus.NOT_FOUND, response);
         }
-        
-        // Controleer of de gebruiker toegang heeft tot deze bestelling
+
         UserModel currentUser = authService.getCurrentUser();
         if (!currentUser.isAdmin() && !order.get().getUser().getId().equals(currentUser.getId())) {
             response.setMessage("Geen toegang tot deze bestelling");
