@@ -19,5 +19,8 @@ public class ProductDTO {
     @NotNull(message = "Product prijs is verplicht")
     private Double price;
 
+    @NotNull(message = "Category ID is required")
+    private String categoryId;
+
     private String[] listIds;
 }

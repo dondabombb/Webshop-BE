@@ -32,4 +32,8 @@ public class ApiConstant {
     // Payment methods routes
     public static final String getAllPaymentMethods = apiPrefix + "payment-methods";
     public static final String getPaymentMethod = apiPrefix + "payment-methods/{paymentId}";
+
+    // Category methods routes
+    public static final String getAllCategories = apiPrefix + "categories";
+    public static final String getCategory = apiPrefix + "categories/{categoryId}";
 }

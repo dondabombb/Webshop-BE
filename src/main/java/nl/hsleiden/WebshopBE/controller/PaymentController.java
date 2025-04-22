@@ -41,7 +41,7 @@ public class PaymentController {
         Optional<PaymentModel> paymentMethod = paymentDAO.findById(paymentId);
         
         if (paymentMethod.isEmpty()) {
-            response.setMessage("Betaalmethode niet gevonden");
+            response.setMessage("Payment method not found");
             return new ApiResponseService(false, HttpStatus.NOT_FOUND, response);
         }
         
@@ -57,7 +57,7 @@ public class PaymentController {
         Optional<PaymentModel> existingPayment = paymentDAO.findById(paymentId);
         
         if (existingPayment.isEmpty()) {
-            response.setMessage("Betaalmethode niet gevonden");
+            response.setMessage("Payment method not found");
             return new ApiResponseService(false, HttpStatus.NOT_FOUND, response);
         }
         
@@ -65,7 +65,7 @@ public class PaymentController {
         payment.setPaymentOption(updatedPayment.getPayment());
         PaymentModel savedPayment = paymentDAO.save(payment);
         
-        response.setMessage("Betaalmethode succesvol bijgewerkt");
+        response.setMessage("Payment method successfully updated");
         response.setResult(savedPayment);
         return new ApiResponseService(true, HttpStatus.OK, response);
     }
@@ -77,12 +77,12 @@ public class PaymentController {
         ApiResponse response = new ApiResponse();
         
         if (!paymentDAO.existsById(paymentId)) {
-            response.setMessage("Betaalmethode niet gevonden");
+            response.setMessage("Payment method not found");
             return new ApiResponseService(false, HttpStatus.NOT_FOUND, response);
         }
         
         paymentDAO.deleteById(paymentId);
-        response.setMessage("Betaalmethode succesvol verwijderd");
+        response.setMessage("Payment method successfully deleted");
         return new ApiResponseService(true, HttpStatus.OK, response);
     }
     
@@ -96,11 +96,11 @@ public class PaymentController {
             PaymentModel payment = new PaymentModel();
             payment.setPaymentOption(newPayment);
             PaymentModel savedPayment = paymentDAO.save(payment);
-            response.setMessage("Betaalmethode succesvol aangemaakt");
+            response.setMessage("Payment method successfully created");
             response.setResult(savedPayment);
             return new ApiResponseService(true, HttpStatus.CREATED, response);
         } catch (Exception e) {
-            response.setMessage("Fout bij het aanmaken van betaalmethode: " + e.getMessage());
+            response.setMessage("Error creating payment method: " + e.getMessage());
             return new ApiResponseService(false, HttpStatus.BAD_REQUEST, response);
         }
     }

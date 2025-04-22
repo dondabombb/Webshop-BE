@@ -50,7 +50,7 @@ public class ProductController {
         
         Optional<ProductModel> product = productDAO.getProduct(productId);
         if (!product.isPresent()) {
-            response.setMessage("Product niet gevonden");
+            response.setMessage("Product not found");
             return new ApiResponseService(false, HttpStatus.NOT_FOUND, response);
         }
         
@@ -67,14 +67,14 @@ public class ProductController {
         // Controleer of product met dezelfde naam al bestaat
         Optional<ProductModel> existingProduct = productDAO.getProduct(productDTO.getName());
         if (existingProduct.isPresent()) {
-            response.setMessage("Product met deze naam bestaat al");
+            response.setMessage("Product with this name already exists");
             return new ApiResponseService(false, HttpStatus.CONFLICT, response);
         }
         
         ProductModel product = productMapper.toModel(productDTO);
         ProductModel savedProduct = productDAO.createProduct(product);
         
-        response.setMessage("Product succesvol aangemaakt");
+        response.setMessage("Product created successfully");
         response.setResult(savedProduct);
         return new ApiResponseService(true, HttpStatus.CREATED, response);
     }
@@ -87,7 +87,7 @@ public class ProductController {
         
         Optional<ProductModel> existingProduct = productDAO.getProduct(productId);
         if (!existingProduct.isPresent()) {
-            response.setMessage("Product niet gevonden");
+            response.setMessage("Product not found");
             return new ApiResponseService(false, HttpStatus.NOT_FOUND, response);
         }
         
@@ -95,7 +95,7 @@ public class ProductController {
         if (productDTO.getName() != null) {
             Optional<ProductModel> productWithName = productDAO.getProduct(productDTO.getName());
             if (productWithName.isPresent() && !productWithName.get().getId().equals(productId)) {
-                response.setMessage("Product met deze naam bestaat al");
+                response.setMessage("Product with this name already exists");
                 return new ApiResponseService(false, HttpStatus.CONFLICT, response);
             }
         }
@@ -103,7 +103,7 @@ public class ProductController {
         ProductModel updatedProduct = productMapper.mergeProduct(existingProduct.get(), productDTO);
         ProductModel savedProduct = productDAO.updateProduct(updatedProduct);
         
-        response.setMessage("Product succesvol bijgewerkt");
+        response.setMessage("Product updated successfully");
         response.setResult(savedProduct);
         return new ApiResponseService(true, HttpStatus.OK, response);
     }
@@ -116,13 +116,13 @@ public class ProductController {
         
         Optional<ProductModel> existingProduct = productDAO.getProduct(productId);
         if (!existingProduct.isPresent()) {
-            response.setMessage("Product niet gevonden");
+            response.setMessage("Product not found");
             return new ApiResponseService(false, HttpStatus.NOT_FOUND, response);
         }
         
         productDAO.deleteProduct(productId);
         
-        response.setMessage("Product succesvol verwijderd");
+        response.setMessage("Product deleted successfully");
         return new ApiResponseService(true, HttpStatus.OK, response);
     }
 

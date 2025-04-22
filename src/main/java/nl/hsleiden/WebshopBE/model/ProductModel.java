@@ -42,6 +42,11 @@ public class ProductModel {
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<CartProductModel> carts = new ArrayList<>();
 
+    @JsonBackReference
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "category_id")
+    private CategoryModel category;
+
     // Admin-only field
     @Column(nullable = false)
     private boolean active = true;

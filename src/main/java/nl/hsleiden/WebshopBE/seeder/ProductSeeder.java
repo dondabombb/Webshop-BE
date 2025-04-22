@@ -1,6 +1,9 @@
 package nl.hsleiden.WebshopBE.seeder;
 
+import nl.hsleiden.WebshopBE.DAO.CategoryDAO;
 import nl.hsleiden.WebshopBE.DAO.ProductDAO;
+import nl.hsleiden.WebshopBE.controller.CatagoryController;
+import nl.hsleiden.WebshopBE.model.CategoryModel;
 import nl.hsleiden.WebshopBE.model.ProductModel;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
@@ -10,16 +13,37 @@ import org.springframework.stereotype.Component;
 public class ProductSeeder implements CommandLineRunner {
 
     private final ProductDAO productDAO;
+    private final CategoryDAO categoryDAO;
 
     @Autowired
-    public ProductSeeder(ProductDAO productDAO) {
+    public ProductSeeder(ProductDAO productDAO, CategoryDAO categoryDAO) {
         this.productDAO = productDAO;
+        this.categoryDAO = categoryDAO;
     }
     
     @Override
     public void run(String... args) {
         // Check if products already exist
         if (productDAO.getAllProducts().isEmpty()) {
+
+            CategoryModel tennisCategory = new CategoryModel();
+            tennisCategory.setName("Tennis");
+            categoryDAO.createCategory(tennisCategory);
+
+            CategoryModel footballCategory = new CategoryModel();
+            footballCategory.setName("football");
+            categoryDAO.createCategory(footballCategory);
+
+            CategoryModel baseballCategory  = new CategoryModel();
+            baseballCategory.setName("baseball");
+            categoryDAO.createCategory(baseballCategory);
+
+            CategoryModel rugbyCategory  = new CategoryModel();
+            rugbyCategory.setName("rugby");
+            categoryDAO.createCategory(rugbyCategory);
+
+
+
             // Create tennis ball
             ProductModel tennisBall = new ProductModel();
             tennisBall.setName("Tennis Ball");
@@ -27,15 +51,18 @@ public class ProductSeeder implements CommandLineRunner {
             tennisBall.setPrice(12.99);
             tennisBall.setImageUrl("https://www.kwd.nl/media/catalog/product/cache/2/image/515x515/9df78eab33525d08d6e5fb8d27136e95/t/e/tennisbal.jpg");
             tennisBall.setStock(100);
+            tennisBall.setCategory(tennisCategory);
             productDAO.createProduct(tennisBall);
 
             // Create football
    
-          ProductModel football = new ProductModel();         football.setName("Football");
+            ProductModel football = new ProductModel();
+            football.setName("Football");
             football.setDescription("Official size soccer ball with durable construction for field play");
             football.setPrice(24.99);
             football.setImageUrl("https://www.voetbalshop.nl/media/catalog/product/cache/1a662e74f62b3db31cb2d94e98c7cd90/2/4/244317_adidas-ek-2024-fussballliebe-league-voetbal-maat-5-wit-zwart-multicolor_1.jpg");
             football.setStock(100);
+            football.setCategory(footballCategory);
             productDAO.createProduct(football);
 
             // Create rugby ball
@@ -45,6 +72,7 @@ public class ProductSeeder implements CommandLineRunner {
             rugbyBall.setPrice(29.99);
             rugbyBall.setImageUrl("https://www.partywinkel.nl/cdn/shop/files/file_348fc144-ccaf-4aa6-9836-e54ab1805a9b.jpg?v=1718874513");
             rugbyBall.setStock(75);
+            rugbyBall.setCategory(rugbyCategory);
             productDAO.createProduct(rugbyBall);
 
             // Create football shoes
@@ -54,6 +82,7 @@ public class ProductSeeder implements CommandLineRunner {
             footballShoes.setPrice(89.99);
             footballShoes.setImageUrl("https://static.nike.com/a/images/t_PDP_1728_v1/f_auto,q_auto:eco/8131fe5c-6f74-4cc4-97ce-1cf79434db61/ZM+VAPOR+16+ELITE+FG+LV8.png");
             footballShoes.setStock(50);
+            footballShoes.setCategory(footballCategory);
             productDAO.createProduct(footballShoes);
 
             // Create tennis racket
@@ -63,6 +92,7 @@ public class ProductSeeder implements CommandLineRunner {
             tennisRacket.setPrice(79.99);
             tennisRacket.setImageUrl("https://www.tennispro.nl/media/catalog/product/cache/8/thumbnail/1200x/9df78eab33525d08d6e5fb8d27136e95/w/r/wr074011u_1.jpg");
             tennisRacket.setStock(40);
+            tennisRacket.setCategory(tennisCategory);
             productDAO.createProduct(tennisRacket);
 
             // Create baseball
@@ -72,6 +102,7 @@ public class ProductSeeder implements CommandLineRunner {
             baseball.setPrice(15.99);
             baseball.setImageUrl("https://upload.wikimedia.org/wikipedia/en/1/1e/Baseball_%28crop%29.jpg");
             baseball.setStock(120);
+            baseball.setCategory(baseballCategory);
             productDAO.createProduct(baseball);
 
             // Create baseball bat
@@ -81,6 +112,7 @@ public class ProductSeeder implements CommandLineRunner {
             baseballBat.setPrice(59.99);
             baseballBat.setImageUrl("https://cdn11.bigcommerce.com/s-6cxk647km8/images/stencil/1280w/products/127/1302/R141_Website__56565.1606253853.jpg?c=2");
             baseballBat.setStock(35);
+            baseballBat.setCategory(baseballCategory);
             productDAO.createProduct(baseballBat);
 
             // Create football gloves
@@ -90,6 +122,7 @@ public class ProductSeeder implements CommandLineRunner {
             footballGloves.setPrice(34.99);
             footballGloves.setImageUrl("https://www.epsports.co.uk/media/iopt/catalog/product/cache/414e06c0bc81c2bd58ee288e7eb43d40/v/a/vapor_jet_8_royal_415.webp");
             footballGloves.setStock(60);
+            footballGloves.setCategory(footballCategory);
             productDAO.createProduct(footballGloves);
 
             // Create tennis shoes
@@ -99,6 +132,7 @@ public class ProductSeeder implements CommandLineRunner {
             tennisShoes.setPrice(94.99);
             tennisShoes.setImageUrl("https://media.babolat.com/image/upload/f_auto,q_auto,c_pad,w_3024,h_3024/v1719837023/Product_Media/2025/Tennis/Shoes/SFX/3A0S25A529-SFX_4_ALL_COURT_MEN-1005-1-Exterieur.png");
             tennisShoes.setStock(45);
+            tennisShoes.setCategory(tennisCategory);
             productDAO.createProduct(tennisShoes);
 
             // Create baseball helmet
@@ -108,6 +142,7 @@ public class ProductSeeder implements CommandLineRunner {
             baseballHelmet.setPrice(49.99);
             baseballHelmet.setImageUrl("https://m.media-amazon.com/images/I/712tex5nyZL._AC_SL1500_.jpg");
             baseballHelmet.setStock(30);
+            baseballHelmet.setCategory(baseballCategory);
             productDAO.createProduct(baseballHelmet);
 
             System.out.println("Products seeded successfully!");

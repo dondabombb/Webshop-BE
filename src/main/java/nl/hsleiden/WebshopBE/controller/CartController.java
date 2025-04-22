@@ -55,13 +55,13 @@ public class CartController {
 
         Optional<CartModel> foundCart = this.cartDAO.getCart(cartProductDTO.getCartId());
         if (!foundCart.isPresent()){
-            response.setMessage("Kan de huidige winkelwagen niet vinden");
+            response.setMessage("Cannot find the current shopping cart");
             return new ApiResponseService(false, HttpStatus.NOT_FOUND, response);
         }
 
         Optional<ProductModel> foundProduct = this.productDAO.getProduct(cartProductDTO.getProductId());
         if (!foundProduct.isPresent()){
-            response.setMessage("Dit product bestaat niet");
+            response.setMessage("This product does not exist");
             return new ApiResponseService(false, HttpStatus.NOT_FOUND, response);
         }
 
@@ -87,7 +87,7 @@ public class CartController {
 
         CartModel updatedCart = this.cartDAO.updateCart(cart);
         response.setResult(updatedCart);
-        response.setMessage("Product is toegevoegd aan winkelwagen");
+        response.setMessage("Product has been added to cart");
         return new ApiResponseService(true, HttpStatus.CREATED, response);
     }
 
@@ -99,13 +99,13 @@ public class CartController {
 
         Optional<CartModel> foundCart = this.cartDAO.getCart(cartId);
         if (!foundCart.isPresent()){
-            response.setMessage("Kan de huidige winkelwagen niet vinden");
+            response.setMessage("Cannot find the current shopping cart");
             return new ApiResponseService(false, HttpStatus.NOT_FOUND, response);
         }
 
         Optional<ProductModel> foundProduct = this.productDAO.getProduct(productId);
         if (!foundProduct.isPresent()){
-            response.setMessage("Dit product bestaat niet");
+            response.setMessage("This product does not exist");
             return new ApiResponseService(false, HttpStatus.NOT_FOUND, response);
         }
 
@@ -114,12 +114,12 @@ public class CartController {
 
         Optional<CartProductModel> cartProduct = this.cartProductDAO.getCartProduct(cart.getId(), product.getId());
         if(!cartProduct.isPresent()){
-            response.setMessage("Dit product bevindt zich niet in de winkelwagen");
+            response.setMessage("This product is not in the shopping cart");
             return new ApiResponseService(false, HttpStatus.NOT_FOUND, response);
         }
 
         this.cartProductDAO.deleteCartProduct(cartProduct.get());
-        response.setMessage("Product is verwijderd uit de winkelwagen");
+        response.setMessage("Product has been removed from cart");
         response.setResult(this.cartDAO.getCart(cartId));
         return new ApiResponseService(true, HttpStatus.ACCEPTED, response);
     }

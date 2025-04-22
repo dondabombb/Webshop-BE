@@ -46,20 +46,20 @@ public class OrderController {
         
 
         if (cart.getProducts().isEmpty()) {
-            response.setMessage("Kan geen bestelling plaatsen met een lege winkelwagen");
+            response.setMessage("Cannot place order with empty cart");
             return new ApiResponseService(false, HttpStatus.BAD_REQUEST, response);
         }
         
 
         if (currentUser.getShippingAddress() == null) {
-            response.setMessage("Voeg eerst een verzendadres toe aan je account");
+            response.setMessage("Please add a shipping address to your account first");
             return new ApiResponseService(false, HttpStatus.BAD_REQUEST, response);
         }
 
 
         PaymentModel paymentMethod = paymentDAO.findByPaymentOption(orderDTO.getPaymentMethod());
         if (paymentMethod == null) {
-            response.setMessage("Ongeldige betaalmethode");
+            response.setMessage("Invalid payment method");
             return new ApiResponseService(false, HttpStatus.BAD_REQUEST, response);
         }
         
@@ -73,7 +73,7 @@ public class OrderController {
         currentUser.setCart(newCart);
         cartDAO.createCart(newCart);
         
-        response.setMessage("Bestelling succesvol geplaatst");
+        response.setMessage("Order placed successfully");
         response.setResult(savedOrder);
         return new ApiResponseService(true, HttpStatus.CREATED, response);
     }
@@ -86,13 +86,13 @@ public class OrderController {
         
         Optional<OrderModel> order = orderDAO.getOrder(orderId);
         if (order.isEmpty()) {
-            response.setMessage("Bestelling niet gevonden");
+            response.setMessage("Order not found");
             return new ApiResponseService(false, HttpStatus.NOT_FOUND, response);
         }
 
         UserModel currentUser = authService.getCurrentUser();
         if (!currentUser.isAdmin() && !order.get().getUser().getId().equals(currentUser.getId())) {
-            response.setMessage("Geen toegang tot deze bestelling");
+            response.setMessage("No access to this order");
             return new ApiResponseService(false, HttpStatus.FORBIDDEN, response);
         }
         
@@ -133,7 +133,7 @@ public class OrderController {
         
         Optional<OrderModel> orderOpt = orderDAO.getOrder(orderId);
         if (orderOpt.isEmpty()) {
-            response.setMessage("Bestelling niet gevonden");
+            response.setMessage("Order not found");
             return new ApiResponseService(false, HttpStatus.NOT_FOUND, response);
         }
         
@@ -142,8 +142,8 @@ public class OrderController {
         
         OrderModel updatedOrder = orderDAO.updateOrder(order);
         
-        response.setMessage("Bestelstatus succesvol bijgewerkt");
+        response.setMessage("Order status updated successfully");
         response.setResult(updatedOrder);
         return new ApiResponseService(true, HttpStatus.OK, response);
     }
-} 
+}

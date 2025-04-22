@@ -50,7 +50,7 @@ public class UserController {
 
         Optional<UserModel> existingUser = userDAO.getUserByEmail(createUserDTO.getEmail());
         if (existingUser.isPresent()) {
-            response.setMessage("Email is al in gebruik");
+            response.setMessage("Email is already in use");
             return new ApiResponseService(false, HttpStatus.CONFLICT, response);
         }
 
@@ -65,7 +65,7 @@ public class UserController {
 
         UserModel savedUser = userDAO.createUser(user);
 
-        response.setMessage("Gebruiker succesvol geregistreerd");
+        response.setMessage("User registered successfully");
         response.setResult(savedUser);
         return new ApiResponseService(true, HttpStatus.CREATED, response);
     }
@@ -80,7 +80,7 @@ public class UserController {
     
         Optional<UserModel> foundUser = userDAO.getUserByEmail(loginDTO.getEmail());
         if (!foundUser.isPresent()) {
-            response.setMessage("De combinatie van email en wachtwoord is incorrect");
+            response.setMessage("Invalid email or password combination");
             return new ApiResponseService(false, HttpStatus.UNAUTHORIZED, response);
         }
         userId = foundUser.get().getId();
@@ -90,7 +90,7 @@ public class UserController {
         try {
             authManager.authenticate(authInputToken);
         } catch (Throwable $throwable) {
-            response.setMessage("De combinatie van email en wachtwoord is incorrect");
+            response.setMessage("Invalid email or password combination");
             return new ApiResponseService(false, HttpStatus.UNAUTHORIZED, response);
         }
     
@@ -111,7 +111,7 @@ public class UserController {
 
         Optional<UserModel> user = userDAO.getUser(userId);
         if (!user.isPresent()) {
-            response.setMessage("Gebruiker niet gevonden");
+            response.setMessage("User not found");
             return new ApiResponseService(false, HttpStatus.NOT_FOUND, response);
         }
 
